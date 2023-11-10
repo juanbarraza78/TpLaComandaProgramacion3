@@ -54,10 +54,11 @@ $app->group('/Mesa', function (RouteCollectorProxy $group) {
 $app->group('/Pedido', function (RouteCollectorProxy $group) {
   $group->get('[/]', \PedidoController::class . ':TraerTodos');
   $group->get('/{clave}', \PedidoController::class . ':TraerUno');
-  $group->post('[/]', \PedidoController::class . ':CargarUno')->add(new LoggerMozoMiddleware());
+  $group->post('/', \PedidoController::class . ':CargarUno')->add(new LoggerMozoMiddleware());
   $group->put('[/]', \PedidoController::class . ':ModificarUno');
   $group->put('/ModificarEstado', \PedidoController::class . ':ModificarEstado');
   $group->delete('/{codigoPedido}', \PedidoController::class . ':BorrarUno');
+  $group->post('/FinalizarPedido', \PedidoController::class . ':FinalizarPedido');
 });
 
 $app->group('/Producto', function (RouteCollectorProxy $group) {

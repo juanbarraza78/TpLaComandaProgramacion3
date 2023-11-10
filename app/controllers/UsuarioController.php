@@ -9,13 +9,11 @@ class UsuarioController extends Usuario
 
         $sueldo = $parametros['sueldo'];
         $sector = $parametros['sector'];
-        // $fechaIngreso = $parametros['fechaIngreso'];
         $nombreUsuario = $parametros['nombreUsuario'];
 
         $user = new Usuario();
         $user->sueldo = $sueldo;
         $user->sector = $sector;
-        // $user->fechaIngreso = $fechaIngreso;
         $user->nombreUsuario = $nombreUsuario;
 
         $id = $user->crearUsuario();

@@ -1,5 +1,6 @@
 <?php
 require_once './models/Pedido.php';
+require_once './models/Producto.php';
 
 class PedidoController extends Pedido 
 {
@@ -95,5 +96,19 @@ class PedidoController extends Pedido
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function FinalizarPedido($request, $response, $args) // POST codigoPedido
+    {
+      $parametros = $request->getParsedBody();
+      $codigoPedido = $parametros['codigoPedido'];
+      Pedido::modificarEstadoDelPedido("Finalizado", $codigoPedido);
+      Producto::modificarEstadoDelProducto("Finalizado",$codigoPedido);
+
+      $payload = json_encode(array("mensaje" => "Pedido Finalizado con exito"));
+
+      $response->getBody()->write($payload);
+      return $response
+        ->withHeader('Content-Type', 'application/json');
     }
 }

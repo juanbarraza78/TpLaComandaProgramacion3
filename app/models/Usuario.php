@@ -18,7 +18,7 @@ class Usuario
         
         $consulta->bindValue(':sueldo', $this->sueldo, PDO::PARAM_INT);
         $consulta->bindValue(':sector', $this->sector, PDO::PARAM_STR);
-        $consulta->bindValue(':fechaIngreso', $fechaFormateada); // nose si funca con date
+        $consulta->bindValue(':fechaIngreso', $fechaFormateada);
         $consulta->bindValue(':nombreUsuario', $this->nombreUsuario, PDO::PARAM_STR);
         $consulta->execute();
 
