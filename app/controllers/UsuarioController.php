@@ -48,4 +48,37 @@ class UsuarioController extends Usuario
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
+
+    public function ModificarUno($request, $response, $args) // POST  sueldo nombreUsuario sector fechaIngreso idUsuario
+    {
+        $parametros = $request->getParsedBody();
+
+        $sueldo = $parametros['sueldo'];
+        $nombreUsuario = $parametros['nombreUsuario'];
+        $sector = $parametros['sector'];
+        $fechaIngreso = $parametros['fechaIngreso'];
+        $idUsuario = $parametros['idUsuario'];
+
+        Usuario::modificarUsuario($sueldo, $sector, $fechaIngreso, $nombreUsuario, $idUsuario);
+
+        $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function BorrarUno($request, $response, $args) // DELETE idUsuario
+    {
+
+        $idUsuario = $args['idUsuario'];
+        Usuario::borrarUsuario($idUsuario);
+
+        $payload = json_encode(array("mensaje" => "Usuario borrado con exito"));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
 }

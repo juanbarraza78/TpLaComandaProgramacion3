@@ -43,5 +43,33 @@ class MesaController extends Mesa
           ->withHeader('Content-Type', 'application/json');
     }
 
-    //como obtener los parametros cuando utilizamos el verbo DELETE o PUT
+    public function ModificarUno($request, $response, $args) // POST  idMesa estado
+    {
+        $parametros = $request->getParsedBody();
+
+        $idMesa = $parametros['idMesa'];
+        $estado = $parametros['estado'];
+
+        Mesa::modificarMesa($idMesa, $estado);
+
+        $payload = json_encode(array("mensaje" => "Mesa modificada con exito"));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function BorrarUno($request, $response, $args) // DELETE idMesa
+    {
+
+        $idMesa = $args['idMesa'];
+        Mesa::borrarMesa($idMesa);
+
+        $payload = json_encode(array("mensaje" => "Mesa borrado con exito"));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
 }
