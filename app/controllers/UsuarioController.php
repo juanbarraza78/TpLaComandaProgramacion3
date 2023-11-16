@@ -1,20 +1,24 @@
 <?php
 require_once './models/Usuario.php';
+require_once './utils/AutentificadorJWT.php';
 
 class UsuarioController extends Usuario 
 {
-    public function CargarUno($request, $response, $args) // POST : sueldo sector fechaIngreso nombreUsuario
+    public function CargarUno($request, $response, $args) // POST : sueldo sector fechaIngreso nombreUsuario contrasenia
     {
         $parametros = $request->getParsedBody();
 
         $sueldo = $parametros['sueldo'];
         $sector = $parametros['sector'];
         $nombreUsuario = $parametros['nombreUsuario'];
+        $contrasenia = $parametros['contrasenia'];
+
 
         $user = new Usuario();
         $user->sueldo = $sueldo;
         $user->sector = $sector;
         $user->nombreUsuario = $nombreUsuario;
+        $user->contrasenia = $contrasenia;
 
         $id = $user->crearUsuario();
 
@@ -47,7 +51,7 @@ class UsuarioController extends Usuario
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function ModificarUno($request, $response, $args) // POST  sueldo nombreUsuario sector fechaIngreso idUsuario
+    public function ModificarUno($request, $response, $args) // POST  sueldo nombreUsuario sector fechaIngreso idUsuario, contrasenia
     {
         $parametros = $request->getParsedBody();
 
@@ -56,8 +60,9 @@ class UsuarioController extends Usuario
         $sector = $parametros['sector'];
         $fechaIngreso = $parametros['fechaIngreso'];
         $idUsuario = $parametros['idUsuario'];
+        $contrasenia = $parametros['contrasenia'];
 
-        Usuario::modificarUsuario($sueldo, $sector, $fechaIngreso, $nombreUsuario, $idUsuario);
+        Usuario::modificarUsuario($sueldo, $sector, $fechaIngreso, $nombreUsuario, $idUsuario, $contrasenia);
 
         $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
 
@@ -78,5 +83,44 @@ class UsuarioController extends Usuario
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
+
+    public function LoginUsuario($request, $response, $args) // POST nombreUsuario contrasenia
+    {
+      $parametros = $request->getParsedBody();
+
+      $nombreUsuario = $parametros['nombreUsuario'];
+      $contrasenia = $parametros['contrasenia'];
+
+      $existe = false;
+      $lista = Usuario::obtenerTodos();
+
+      foreach ($lista as $usuario) {
+        if($usuario->nombreUsuario == $nombreUsuario && $usuario->contrasenia == $contrasenia)
+        {
+          $existe = true;
+          $idUsuario = $usuario->idUsuario;
+          $sector = $usuario->sector;
+        }
+      }
+      if($existe)
+      {
+        $datos=array('idUsuario' => $idUsuario,'sector' => $sector);
+        $token = AutentificadorJWT::CrearToken($datos);
+        $payload = json_encode(array('jwt' => $token));
+      }
+      else
+      {
+        $payload = json_encode(array('error' => 'Nombre Usuario o contraseña incorrectos'));
+      }
+
+      $response->getBody()->write($payload);
+
+      return $response->withHeader('Content-Type', 'application/json');
+
+    }
+
+   
+  
+
 
 }

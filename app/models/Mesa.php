@@ -24,6 +24,16 @@ class Mesa
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
     }
 
+    public static function obtenerTodosEstado($estado)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT idMesa, estado FROM mesas WHERE estado = :estado");
+        $consulta->bindValue(':estado', $estado, PDO::PARAM_STR);
+        $consulta->execute();
+
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
+    }
+
     public static function obtenerMesa($idMesa)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();

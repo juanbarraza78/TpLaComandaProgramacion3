@@ -3,7 +3,7 @@ require_once './models/Producto.php';
 
 class ProductosController extends Producto 
 {
-    public function CargarUno($request, $response, $args) // POST : tipo nombre codigoPedido
+    public function CargarUno($request, $response, $args) // POST : tiempoEstimado tipo nombre codigoPedido
     {
         $parametros = $request->getParsedBody();
 
@@ -18,18 +18,18 @@ class ProductosController extends Producto
 
         $id = $prod->crearProducto();
 
-        $payload = json_encode(array("mensaje" => "Producto creado con exito"));
+        $payload = json_encode(array("mensaje" => "Producto creado con exito","id " => "{$id}" ));
 
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
     
-    public function TraerUno($request, $response, $args) // GET :  codigoPedido
+    public function TraerUno($request, $response, $args) // GET :  idProducto
     {
-        $codigoPedido = $args['codigoPedido']; 
+        $idProducto = $args['idProducto']; 
 
-        $prod = Producto::obtenerProducto($codigoPedido);
+        $prod = Producto::obtenerProducto($idProducto);
         $payload = json_encode($prod);
 
         $response->getBody()->write($payload);
@@ -47,7 +47,25 @@ class ProductosController extends Producto
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function ModificarUno($request, $response, $args) // PUT  estado tiempoEstimado tiempoReal tipo nombre codigoPedido
+    public function TraerTodosVerificado($request, $response, $args) // GET estado
+    {
+      $header = $request->getHeaderLine('Authorization');
+      $token = trim(explode("Bearer", $header)[1]);
+      $data = AutentificadorJWT::ObtenerData($token);
+
+      $parametrosParam = $request->getQueryParams();
+      $estado = $parametrosParam['estado'];
+
+      $lista = Producto::obtenerTodosSegunSuEstadoYTipo($estado, $data->sector);
+
+      $payload = json_encode(array("listaProductos" => $lista));
+
+      $response->getBody()->write($payload);
+      return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function ModificarUno($request, $response, $args) // PUT  estado tiempoEstimado tiempoReal tipo nombre codigoPedido idProducto
     {
         $parametros = $request->getParsedBody();
 
@@ -57,8 +75,9 @@ class ProductosController extends Producto
         $tipo = $parametros['tipo'];
         $nombre = $parametros['nombre'];
         $codigoPedido = $parametros['codigoPedido'];
+        $idProducto = $parametros['idProducto'];
 
-        Producto::modificarProducto($estado, $tiempoEstimado, $tiempoReal, $tipo, $nombre, $codigoPedido);
+        Producto::modificarProducto($estado, $tiempoEstimado, $tiempoReal, $tipo, $nombre, $codigoPedido, $idProducto);
 
         $payload = json_encode(array("mensaje" => "Producto Modificado con exito"));
 
@@ -66,14 +85,15 @@ class ProductosController extends Producto
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
-    public function ModificarEstado($request, $response, $args) // PUT  estado codigoPedido
+    public function ModificarEstadoEnPreparacion($request, $response, $args) // PUT estado tiempoEstimado idProducto
     {
         $parametros = $request->getParsedBody();
 
         $estado = $parametros['estado'];
-        $codigoPedido = $parametros['codigoPedido'];
+        $tiempoEstimado = $parametros['tiempoEstimado'];
+        $idProducto = $parametros['idProducto'];
 
-        Producto::modificarEstadoDelProducto($estado, $codigoPedido);
+        Producto::modificarEstadoDelProductoPendiente($estado, $tiempoEstimado, $idProducto);
 
         $payload = json_encode(array("mensaje" => "El estado del producto fue modificado con exito"));
 
@@ -82,11 +102,28 @@ class ProductosController extends Producto
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function BorrarUno($request, $response, $args) // DELETE codigoPedido
+    public function ModificarEstadoListoParaServir($request, $response, $args) // PUT estado tiempoReal idProducto
+    {
+        $parametros = $request->getParsedBody();
+
+        $estado = $parametros['estado'];
+        $tiempoReal = $parametros['tiempoReal'];
+        $idProducto = $parametros['idProducto'];
+
+        Producto::modificarEstadoDelProductoListoParaServir($estado, $tiempoReal, $idProducto);
+
+        $payload = json_encode(array("mensaje" => "El estado del producto fue modificado con exito"));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function BorrarUno($request, $response, $args) // DELETE idProducto
     {
 
-        $codigoPedido = $args['codigoPedido'];
-        Producto::borrarProducto($codigoPedido);
+        $idProducto = $args['idProducto'];
+        Producto::borrarProducto($idProducto);
 
         $payload = json_encode(array("mensaje" => "Producto borrado con exito"));
 
