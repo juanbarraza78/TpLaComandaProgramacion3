@@ -16,6 +16,7 @@ class fotoController
 
         if (move_uploaded_file($_FILES['archivo']['tmp_name'],  $ruta_destino))
         {
+            // linkear pedido a la foto
             $payload = json_encode(array("mensaje" => "Foto Subida con exito"));
         }
         else

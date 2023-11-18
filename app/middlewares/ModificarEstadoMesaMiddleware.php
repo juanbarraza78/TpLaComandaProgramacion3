@@ -17,7 +17,7 @@ class ModificarEstadoMesaMiddleware
 
         var_dump($data->sector);
         
-        if ((($estado == "con cliente esperando pedido" || $estado == "con cliente comiendo" || $estado == "con cliente pagando") && $data->sector === 'Mozo') || $data->sector === 'socio') 
+        if ((($estado == "con cliente esperando pedido" || $estado == "con cliente comiendo" || $estado == "con cliente pagando") && $data->sector === 'Mozo') || $data->sector === 'Socio') 
         {
             $response = $handler->handle($request);
         } else 

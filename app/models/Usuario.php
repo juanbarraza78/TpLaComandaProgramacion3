@@ -26,6 +26,25 @@ class Usuario
 
         return $objAccesoDatos->obtenerUltimoId();
     }
+    public function crearUsuarioCsv()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO usuarios (sueldo, nombreUsuario, contrasenia, sector, fechaIngreso, idUsuario) VALUES (:sueldo, :nombreUsuario, :contrasenia, :sector, :fechaIngreso, :idUsuario)");
+        
+        $consulta->bindValue(':sueldo', $this->sueldo, PDO::PARAM_INT);
+        $consulta->bindValue(':nombreUsuario', $this->nombreUsuario, PDO::PARAM_STR);
+        $consulta->bindValue(':contrasenia', $this->contrasenia, PDO::PARAM_STR);
+        $consulta->bindValue(':sector', $this->sector, PDO::PARAM_STR);
+        $consulta->bindValue(':fechaIngreso', $this->fechaIngreso);
+        $consulta->bindValue(':idUsuario', $this->idUsuario, PDO::PARAM_INT);
+        $consulta->execute();
+    }
+    public static function borrarUsuarios()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("TRUNCATE usuarios");
+        $consulta->execute();
+    }
 
     public static function obtenerTodos()
     {

@@ -131,4 +131,59 @@ class ProductosController extends Producto
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
+
+    public function GuardarCSV($request, $response, $args) // GET
+    {
+            
+      if($archivo = fopen("csv/productos.csv", "w"))
+      {
+        $lista = Producto::obtenerTodos();
+        foreach( $lista as $producto )
+        {
+            fputcsv($archivo, [$producto->estado, $producto->tiempoEstimado, $producto->tiempoReal, $producto->tipo, $producto->nombre, $producto->codigoPedido, $producto->idProducto]);
+        }
+        fclose($archivo);
+        $payload =  json_encode(array("mensaje" => "La lista de productos se guardo correctamente"));
+      }
+      else
+      {
+        $payload =  json_encode(array("mensaje" => "No se pudo abrir el archivo de productos"));
+      }
+
+      $response->getBody()->write($payload);
+      return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function CargarCSV($request, $response, $args) // GET
+    {
+      if(($archivo = fopen("csv/productos.csv", "r")) !== false)
+      {
+        Producto::borrarPedidos();
+        while (($filaProducto = fgetcsv($archivo, 0, ',')) !== false) //esto seria como un while !feof
+        {
+          $nuevoProducto = new Producto();
+          $nuevoProducto->estado = $filaProducto[0];
+          $nuevoProducto->tiempoEstimado = $filaProducto[1];
+          $nuevoProducto->tiempoReal = $filaProducto[2];
+          $nuevoProducto->tipo = $filaProducto[3];
+          $nuevoProducto->nombre = $filaProducto[4];
+          $nuevoProducto->codigoPedido = $filaProducto[5];
+          $nuevoProducto->idProducto = $filaProducto[6];
+          $nuevoProducto->crearProductoCSV();
+        }
+        fclose($archivo);
+        $payload  =  json_encode(array("mensaje" => "Los productos se cargaron correctamente"));
+      }
+      else
+      {
+        $payload =  json_encode(array("mensaje" => "No se pudo leer el archivo de productos"));
+      }
+                
+      $response->getBody()->write($payload);
+      return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
+
+
 }

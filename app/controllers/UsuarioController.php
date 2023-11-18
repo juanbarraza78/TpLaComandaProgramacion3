@@ -119,6 +119,57 @@ class UsuarioController extends Usuario
 
     }
 
+    public function GuardarCSV($request, $response, $args) // GET
+    {
+            
+      if($archivo = fopen("csv/usuarios.csv", "w"))
+      {
+        $lista = Usuario::obtenerTodos();
+        foreach( $lista as $usuario )
+        {
+            fputcsv($archivo, [$usuario->sueldo, $usuario->nombreUsuario, $usuario->contrasenia, $usuario->sector, $usuario->fechaIngreso, $usuario->idUsuario]);
+        }
+        fclose($archivo);
+        $payload =  json_encode(array("mensaje" => "La lista de usuarios se guardo correctamente"));
+      }
+      else
+      {
+        $payload =  json_encode(array("mensaje" => "No se pudo abrir el archivo de usuarios"));
+      }
+
+      $response->getBody()->write($payload);
+      return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function CargarCSV($request, $response, $args) // GET
+    {
+      if(($archivo = fopen("csv/usuarios.csv", "r")) !== false)
+      {
+        Usuario::borrarUsuarios();
+        while (($filaUsuario = fgetcsv($archivo, 0, ',')) !== false) //esto seria como un while !feof
+        {
+          $nuevoUsuario = new Usuario();
+          $nuevoUsuario->sueldo = $filaUsuario[0];
+          $nuevoUsuario->nombreUsuario = $filaUsuario[1];
+          $nuevoUsuario->contrasenia = $filaUsuario[2];
+          $nuevoUsuario->sector = $filaUsuario[3];
+          $nuevoUsuario->fechaIngreso = $filaUsuario[4];
+          $nuevoUsuario->idUsuario = $filaUsuario[5];
+          $nuevoUsuario->crearUsuarioCSV();
+        }
+        fclose($archivo);
+        $payload  =  json_encode(array("mensaje" => "Los usuarios se cargaron correctamente"));
+      }
+      else
+      {
+        $payload =  json_encode(array("mensaje" => "No se pudo leer el archivo de usuarios"));
+      }
+                
+      $response->getBody()->write($payload);
+      return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
    
   
 

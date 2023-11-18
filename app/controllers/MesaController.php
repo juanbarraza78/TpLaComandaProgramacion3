@@ -92,7 +92,6 @@ class MesaController extends Mesa
     $listaMesas = Mesa::obtenerTodos();
     $primeraIteracion = true;
     $mesaMasUsada = null;
-     
 
     foreach ($listaMesas as $mesa) 
     {
@@ -118,22 +117,76 @@ class MesaController extends Mesa
   {
 
     $listaMesas = Mesa::obtenerTodos();
+    $primeraIteracion = true;
+    $mejorComentario = null;
+    $mejorPuntuacion = 0;
+    $mejorMesa = null;
      
     foreach ($listaMesas as $mesa) 
     {
       $listaPedidos = Pedido::obtenerTodosSegunIdMesa($mesa->idMesa);
       foreach ($listaPedidos as $pedido) 
       {
-        if($pedido->estado == "")
+        if($pedido->estado == "finalizado" && ($primeraIteracion || $pedido->puntuacion > $mejorPuntuacion))
         {
-
+          $primeraIteracion = false;
+          $mejorComentario = $pedido->comentarios;
+          $mejorPuntuacion = $pedido->puntuacion;
+          $mejorMesa = $pedido->idMesa;
         }
       }
     }
-    
 
-    $payload = json_encode(array("Mesa mas usada" => "a"));
+    $payload = json_encode(array("Mejor comentario" => $mejorComentario, "Mesa:" => $mejorMesa));
 
+    $response->getBody()->write($payload);
+    return $response
+      ->withHeader('Content-Type', 'application/json');
+  }
+
+  public function GuardarCSV($request, $response, $args) // GET
+  {
+          
+    if($archivo = fopen("csv/mesas.csv", "w"))
+    {
+      $lista = Mesa::obtenerTodos();
+      foreach( $lista as $mesa )
+      {
+          fputcsv($archivo, [$mesa->idMesa, $mesa->estado]);
+      }
+      fclose($archivo);
+      $payload =  json_encode(array("mensaje" => "La lista de mesas se guardo correctamente"));
+    }
+    else
+    {
+      $payload =  json_encode(array("mensaje" => "No se pudo abrir el archivo de mesas"));
+    }
+
+    $response->getBody()->write($payload);
+    return $response
+      ->withHeader('Content-Type', 'application/json');
+  }
+
+  public function CargarCSV($request, $response, $args) // GET
+  {
+    if(($archivo = fopen("csv/mesas.csv", "r")) !== false)
+    {
+      Mesa::borrarMesas();
+      while (($filaMesa = fgetcsv($archivo, 0, ',')) !== false)
+      {
+        $nuevaMesa = new Mesa();
+        $nuevaMesa->idMesa = $filaMesa[0];
+        $nuevaMesa->estado = $filaMesa[1];
+        $nuevaMesa->crearMesaCSV();
+      }
+      fclose($archivo);
+      $payload =  json_encode(array("mensaje" => "Las mesas se cargaron correctamente"));
+    }
+    else
+    {
+      $payload =  json_encode(array("mensaje" => "No se pudo leer el archivo de mesas"));
+    }
+              
     $response->getBody()->write($payload);
     return $response
       ->withHeader('Content-Type', 'application/json');

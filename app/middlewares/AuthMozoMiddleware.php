@@ -12,7 +12,7 @@ class AuthMozoMiddleware
         $token = trim(explode("Bearer", $header)[1]);
         $data = AutentificadorJWT::ObtenerData($token);
 
-            if ($data->sector === "Mozo") {
+            if ($data->sector === "Mozo" || $data->sector === "Socio") {
                 $response = $handler->handle($request);
             } else {
                 $response = new Response();

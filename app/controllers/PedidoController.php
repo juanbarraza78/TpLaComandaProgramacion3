@@ -208,4 +208,58 @@ class PedidoController extends Pedido
     return $response
       ->withHeader('Content-Type', 'application/json');
   }
+
+  public function GuardarCSV($request, $response, $args) // GET
+  {
+          
+    if($archivo = fopen("csv/pedidos.csv", "w"))
+    {
+      $lista = Pedido::obtenerTodos();
+      foreach( $lista as $pedido )
+      {
+          fputcsv($archivo, [$pedido->idMesa, $pedido->estado, $pedido->nombreCliente, $pedido->precio, $pedido->puntuacion, $pedido->comentario, $pedido->codigoPedido, $pedido->tiempoDemora]);
+      }
+      fclose($archivo);
+      $payload =  json_encode(array("mensaje" => "La lista de pedidos se guardo correctamente"));
+    }
+    else
+    {
+      $payload =  json_encode(array("mensaje" => "No se pudo abrir el archivo de pedidos"));
+    }
+
+    $response->getBody()->write($payload);
+    return $response
+      ->withHeader('Content-Type', 'application/json');
+  }
+
+  public function CargarCSV($request, $response, $args) // GET
+  {
+    if(($archivo = fopen("csv/pedidos.csv", "r")) !== false)
+    {
+      Pedido::borrarPedidos();
+      while (($filaPedido = fgetcsv($archivo, 0, ',')) !== false) //esto seria como un while !feof
+      {
+        $nuevoPedido = new Pedido();
+        $nuevoPedido->idMesa = $filaPedido[0];
+        $nuevoPedido->estado = $filaPedido[1];
+        $nuevoPedido->nombreCliente = $filaPedido[2];
+        $nuevoPedido->precio = $filaPedido[3];
+        $nuevoPedido->puntuacion = $filaPedido[4];
+        $nuevoPedido->comentario = $filaPedido[5];
+        $nuevoPedido->codigoPedido = $filaPedido[6];
+        $nuevoPedido->tiempoDemora = $filaPedido[7];
+        $nuevoPedido->crearPedidoCSV();
+      }
+      fclose($archivo);
+      $payload  =  json_encode(array("mensaje" => "Los pedidos se cargaron correctamente"));
+    }
+    else
+    {
+      $payload =  json_encode(array("mensaje" => "No se pudo leer el archivo de pedidos"));
+    }
+              
+    $response->getBody()->write($payload);
+    return $response
+      ->withHeader('Content-Type', 'application/json');
+  }
 }

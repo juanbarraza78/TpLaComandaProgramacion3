@@ -19,7 +19,7 @@ class ModificarEstadoProductoMiddleware
         
         $producAux = Producto::obtenerProducto($idProducto);
         
-        if ($producAux->tipo === $data->sector) {
+        if ($producAux->tipo === $data->sector || $data->sector === "Socio") {
             $response = $handler->handle($request);
         } else {
             $response = new Response();

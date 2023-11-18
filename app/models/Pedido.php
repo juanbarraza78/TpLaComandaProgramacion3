@@ -31,6 +31,32 @@ class Pedido
         return $objAccesoDatos->obtenerUltimoId();
     }
 
+    public function crearPedidoCSV()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $clave = $this->generarCodigoAlfanumericoAleatorio();
+
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO pedidos ( idMesa, estado, nombreCliente, precio, puntuacion, comentario, codigoPedido, tiempoDemora) VALUES (:idMesa, :estado, :nombreCliente, :precio, :puntuacion, :comentario, :codigoPedido, :tiempoDemora)");
+        
+        $consulta->bindValue(':idMesa', $this->idMesa, PDO::PARAM_INT);
+        $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
+        $consulta->bindValue(':nombreCliente', $this->nombreCliente, PDO::PARAM_STR);
+        $consulta->bindValue(':precio', $this->precio, PDO::PARAM_INT);
+        $consulta->bindValue(':puntuacion', $this->puntuacion, PDO::PARAM_INT);
+        $consulta->bindValue(':comentario', $this->comentario, PDO::PARAM_STR);
+        $consulta->bindValue(':codigoPedido', $this->codigoPedido, PDO::PARAM_STR);
+        $consulta->bindValue(':tiempoDemora', $this->tiempoDemora, PDO::PARAM_INT);
+
+        $consulta->execute();
+
+        return $objAccesoDatos->obtenerUltimoId();
+    }
+    public static function borrarPedidos()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("TRUNCATE pedidos");
+        $consulta->execute();
+    }
     public static function obtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();

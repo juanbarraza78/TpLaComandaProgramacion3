@@ -23,6 +23,25 @@ class Producto
 
         return $objAccesoDatos->obtenerUltimoId();
     }
+    public function crearProductoCsv()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO productos (estado, tiempoEstimado, tiempoReal, tipo, nombre, codigoPedido, idProducto) VALUES (:estado, :tiempoEstimado, :tiempoReal, :tipo, :nombre, :codigoPedido, :idProducto)");
+        $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
+        $consulta->bindValue(':tiempoEstimado', $this->tiempoEstimado, PDO::PARAM_INT);
+        $consulta->bindValue(':tiempoReal', $this->tiempoReal, PDO::PARAM_INT);
+        $consulta->bindValue(':tipo', $this->tipo, PDO::PARAM_STR);
+        $consulta->bindValue(':nombre', $this->nombre, PDO::PARAM_STR);
+        $consulta->bindValue(':codigoPedido', $this->codigoPedido, PDO::PARAM_STR);
+        $consulta->bindValue(':idProducto', $this->idProducto, PDO::PARAM_INT);
+        $consulta->execute();
+    }
+    public static function borrarPedidos()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("TRUNCATE productos");
+        $consulta->execute();
+    }
 
     public static function obtenerTodos()
     {
